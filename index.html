@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Link resolver</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{font:16px/1.5 system-ui,sans-serif;max-width:40em;margin:3em auto;padding:0 1em;color:#222}code{background:#eee;padding:0 .3em}</style>
+</head><body>
+<p id="msg">Opening the document&hellip;</p>
+<noscript><p>This page needs JavaScript to open the document. Please enable it and reload.</p></noscript>
+<script>
+(function () {
+  var msg = document.getElementById("msg");
+  var k = new URLSearchParams(location.search).get("k") || "";
+  function fail(t) { msg.textContent = t; }
+  if (!/^[0-9a-f]{12}$/.test(k)) { fail("Not found: this link has no valid key" + (k ? " (" + k.replace(/[^\w-]/g, "?").slice(0, 40) + ")" : "") + "."); return; }
+  fetch("links.json", { cache: "no-store" }).then(function (r) {
+    if (!r.ok) throw new Error("map " + r.status); return r.json();
+  }).then(function (m) {
+    var key = m.keys[k] ? k : (m.aliases && m.aliases[k]);
+    var id = key && m.keys[key];
+    if (!id) { fail("Not found: key " + k + " is not in the map."); return; }
+    location.replace("https://drive.google.com/file/d/" + encodeURIComponent(id) + "/view");
+  }).catch(function (e) { fail("The link map could not be loaded (" + e.message + "). Please try again."); });
+})();
+</script></body></html>
