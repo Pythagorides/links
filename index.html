@@ -14,10 +14,11 @@
   fetch("links.json", { cache: "no-store" }).then(function (r) {
     if (!r.ok) throw new Error("map " + r.status); return r.json();
   }).then(function (m) {
-    var key = m.keys[k] ? k : (m.aliases && m.aliases[k]);
-    var id = key && m.keys[key];
-    if (!id) { fail("Not found: key " + k + " is not in the map."); return; }
-    location.replace("https://drive.google.com/file/d/" + encodeURIComponent(id) + "/view");
+    var fo = m.folders || {};
+    var key = (m.keys[k] || fo[k]) ? k : (m.aliases && m.aliases[k]);
+    if (key && m.keys[key]) { location.replace("https://drive.google.com/file/d/" + encodeURIComponent(m.keys[key]) + "/view"); return; }
+    if (key && fo[key]) { location.replace("https://drive.google.com/drive/folders/" + encodeURIComponent(fo[key])); return; }
+    fail("Not found: key " + k + " is not in the map.");
   }).catch(function (e) { fail("The link map could not be loaded (" + e.message + "). Please try again."); });
 })();
 </script></body></html>
